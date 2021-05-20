@@ -1,0 +1,8 @@
+{% assign IstPackstationNr = Vorgang.Lieferung.Lieferadresse.Adresszusatz | Split: ',' -%}
+{% for Split in IstPackstationNr -%}
+{% assign SplitNr = Split | ToDouble -%}
+{% if SplitNr < 99999 -%}
+{% assign PackstationNr = Split -%}
+{% endif -%}
+{% endfor -%}
+Packstation {{PackstationNr}}

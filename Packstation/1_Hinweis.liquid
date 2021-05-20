@@ -1,0 +1,30 @@
+{% if Vorgang.Sonstiges.Hinweis != "" -%}
+{{Vorgang.Sonstiges.Hinweis}}
+{% endif -%}
+---------------
+Adresse durch Workflow geändert von:
+{% if Vorgang.Lieferung.Lieferadresse.Firma != "" -%}
+Firma: {{ Vorgang.Lieferung.Lieferadresse.Firma }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Firmenzusatz != "" -%}
+Firmenzusatz: {{ Vorgang.Lieferung.Lieferadresse.Firmenzusatz }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Vorname != "" -%}
+Vorname: {{ Vorgang.Lieferung.Lieferadresse.Vorname }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Name != "" -%}
+Name: {{ Vorgang.Lieferung.Lieferadresse.Name }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Adresszusatz != "" -%}
+Adresszusatz: {{ Vorgang.Lieferung.Lieferadresse.Adresszusatz }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Straße != "" -%}
+Straße: {{ Vorgang.Lieferung.Lieferadresse.Straße }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.PLZ != "" -%}
+PLZ: {{ Vorgang.Lieferung.Lieferadresse.PLZ }}
+{% endif -%}
+{% if Vorgang.Lieferung.Lieferadresse.Ort != "" -%}
+Ort: {{ Vorgang.Lieferung.Lieferadresse.Ort }}
+{% endif -%}
+---------------
