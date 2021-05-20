@@ -12,7 +12,7 @@
 {% for Feld in Felder -%}
 {% assign StrasseOrg = Feld | Replace: '[^a-zA-Z0-9\s]',' ' -%}
 {% assign Strasse = StrasseOrg -%}
-{% assign StrasseSplit = Strasse | Replace: '[Pp].{1,3}[k].{1,3}[a].{1,3}[o].{1,3}\W{0,5}[0-9]{3,5}', Splitter -%}
+{% assign StrasseSplit = Strasse | Replace: '[Pp].{1,3}[kK].{1,3}[aA].{1,3}[oO].{1,3}\W{0,5}[0-9]{3,5}', Splitter -%}
 {% assign StrasseSplit = StrasseSplit | Replace: '[A-Za-z][Aa].{1,3}[Ss].{1,3}[Tt].{1,4}[Nn][Rr]{0,1}\W{0,5}[0-9]{3,5}}', Splitter -%}
 {% assign StrasseSplit = StrasseSplit | Replace: '[A-Za-z]{1,3}[Cc].{1,3}[Tt].{1,3}[Ii].{1,3}\W{0,5}[0-9]{3,5}', Splitter -%}
 {% if StrasseOrg != StrasseSplit  -%}
@@ -44,6 +44,23 @@
 {% capture PackstationNr -%}{{PackstationNr}}{{Strasse}},{{PackstationScore}};{% endcapture -%}
 {% endif -%}
 {% endfor -%}
+{% assign PackScore = 0 -%}
+{% assign PackstationNrSplit = PackstationNr | Split: ';' -%}
+{% for PackstationNrMitScore in PackstationNrSplit -%}
+{% assign IstPackScore =  PackstationNrMitScore | Replace: '[0-9]{1,5},', '' -%}
+{% assign IstPackstationNr = PackstationNrMitScore | Replace: ',[0-9]{1,5}', '' -%}
+{% assign IstPackScore = IstPackScore | ToDouble -%}
+{% if IstPackScore >= PackScore -%}
+{% if IstPackScore == PackScore -%}
+{% assign PackstationNrScoreDoppelt = "True" -%}
+{% endif -%}
+{% if IstPackScore != PackScore -%}
+{% assign PackstationNrScoreDoppelt = "False" -%}
+{% endif -%}
+{% assign PackScore = IstPackScore -%}
+{% assign PackstationNr = IstPackstationNr -%}
+{% endif -%}
+{% endfor -%}
 {% capture Felder -%}{{ Vorgang.Lieferung.Lieferadresse.Vorname }}{{Splitter}}{{ Vorgang.Lieferung.Lieferadresse.Name }}{{Splitter}}{{ Vorgang.Lieferung.Lieferadresse.Firma }}{{Splitter}}{{ Vorgang.Lieferung.Lieferadresse.Firmenzusatz }}{{Splitter}}{{ Vorgang.Lieferung.Lieferadresse.Straße }}{{Splitter}}{{ Vorgang.Lieferung.Lieferadresse.Adresszusatz }}{% endcapture -%}
 {% assign Felder = Felder | Split: Splitter -%}
 {% for Feld in Felder -%}
@@ -53,7 +70,19 @@
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[A-Za-z]{0,2}[Oo][A-Za-z]{0,3}[Nn][Uu]{0,1}[Mm]{0,2}[Ee]{0,1}[Rr][:]{0,1}','' -%}
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[Pp][Oo][Ss][Tt][A-Za-z]{0,5}[Rr][:]{0,1}','' -%}
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[Pp][Oo][Ss][Tt][Nn][A-Za-z]{0,5}[:]{0,1}}','' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[Pp].{1,3}[kK].{1,3}[aA].{1,3}[oO].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[A-Za-z][Aa].{1,3}[Ss].{1,3}[Tt].{1,4}[Nn][Rr]{0,1}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[A-Za-z]{1,3}[Cc].{1,3}[Tt].{1,3}[Ii].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
 {% if IstPostNrAlleine == '' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[Pp].{1,3}[kK].{1,3}[aA].{1,3}[oO].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[A-Za-z][Aa].{1,3}[Ss].{1,3}[Tt].{1,4}[Nn][Rr]{0,1}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[a-zA-Z]*\s*[A-Za-z]{1,3}[Cc].{1,3}[Tt].{1,3}[Ii].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
 {% assign IstPostNrOrg = Feld | Replace: '[\s]','' -%}
 {% endif -%}
 {% assign IstPostNr = IstPostNrOrg -%}
@@ -82,23 +111,6 @@
 {% capture PostNr -%}{{PostNr}}{{IstPostNr}},{{PostNrScore}};{% endcapture -%}
 {% endif -%}
 {% endfor -%}
-{% assign PackScore = 0 -%}
-{% assign PackstationNrSplit = PackstationNr | Split: ';' -%}
-{% for PackstationNrMitScore in PackstationNrSplit -%}
-{% assign IstPackScore =  PackstationNrMitScore | Replace: '[0-9]{1,5},', '' -%}
-{% assign IstPackstationNr = PackstationNrMitScore | Replace: ',[0-9]{1,5}', '' -%}
-{% assign IstPackScore = IstPackScore | ToDouble -%}
-{% if IstPackScore >= PackScore -%}
-{% if IstPackScore == PackScore -%}
-{% assign PackstationNrScoreDoppelt = "True" -%}
-{% endif -%}
-{% if IstPackScore != PackScore -%}
-{% assign PackstationNrScoreDoppelt = "False" -%}
-{% endif -%}
-{% assign PackScore = IstPackScore -%}
-{% assign PackstationNr = IstPackstationNr -%}
-{% endif -%}
-{% endfor -%}
 {% assign Score = 0 -%}
 {% assign PostNrSplit = PostNr | Split: ';' -%}
 {% for PostNrMitScore in PostNrSplit -%}
@@ -122,9 +134,21 @@
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[A-Za-z]{0,2}[Oo][A-Za-z]{0,3}[Nn][Uu]{0,1}[Mm]{0,2}[Ee]{0,1}[Rr][:]{0,1}','' -%}
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[Pp][Oo][Ss][Tt][A-Za-z]{0,5}[Rr][:]{0,1}','' -%}
 {% assign IstPostNrAlleine = IstPostNrAlleine | Replace: '[Pp][Oo][Ss][Tt][Nn][A-Za-z]{0,5}[:]{0,1}}','' -%}
+{% capture ReplaceReg -%}\s*[Pp].{1,3}[kK].{1,3}[aA].{1,3}[oO].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[A-Za-z][Aa].{1,3}[Ss].{1,3}[Tt].{1,4}[Nn][Rr]{0,1}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[A-Za-z]{1,3}[Cc].{1,3}[Tt].{1,3}[Ii].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign IstPostNrAlleine = IstPostNrAlleine | Replace: {{ReplaceReg}},'' -%}
 {% assign PostNrTest = Vorgang.Lieferung.Lieferadresse.Adresszusatz -%}
 {% if IstPostNrAlleine == '' -%}
-{% assign PostNrTest = Vorgang.Lieferung.Lieferadresse.Adresszusatz | Replace: '[\s]','' -%}
+{% capture ReplaceReg -%}\s*[Pp].{1,3}[kK].{1,3}[aA].{1,3}[oO].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign PostNrTest = Vorgang.Lieferung.Lieferadresse.Adresszusatz | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[A-Za-z][Aa].{1,3}[Ss].{1,3}[Tt].{1,4}[Nn][Rr]{0,1}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign PostNrTest = PostNrTest | Replace: {{ReplaceReg}},'' -%}
+{% capture ReplaceReg -%}\s*[A-Za-z]{1,3}[Cc].{1,3}[Tt].{1,3}[Ii].{1,3}\W{0,5}{{PackstationNr}}\s*{% endcapture -%}
+{% assign PostNrTest = PostNrTest | Replace: {{ReplaceReg}},'' -%}
+{% assign PostNrTest = PostNrTest | Replace: '[\s]','' -%}
 {% endif -%}
 {% assign PostNrTest = PostNrTest | Replace: PostNr -%}
 {% assign PostNrTest = PostNrTest | Replace: '[^a-zA-Z0-9\s]',' ' -%}
@@ -164,6 +188,9 @@
 {% if PackstationNrTest == '' -%}
 {% assign NurPackstationOderPostNr = "True" -%}
 {% endif -%}
+{% endif -%}
+{% if NurPackstationOderPostNr == "True"-%}
+{{ Vorgang.Lieferung.Lieferadresse.Firmenzusatz }}
 {% endif -%}
 {% if NurPackstationOderPostNr != "True"-%}
 {% if Vorgang.Lieferung.Lieferadresse.Firmenzusatz != "" -%}
